@@ -37,6 +37,7 @@ const LoginForm = () => {
 				</div>
 				<button
 					type="submit"
+					onClick={() => navigate("/dashboard")}
 					className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-400 text-white font-semibold rounded-lg shadow-sm disabled:bg-slate-300 dark:disabled:bg-slate-700 transition">
 					Sign In
 				</button>

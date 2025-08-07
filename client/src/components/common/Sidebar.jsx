@@ -9,6 +9,9 @@ import {
 	Wrench,
 	Menu,
 	X,
+	LogOut,
+	LogOutIcon,
+	LucideLogOut,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -124,6 +127,15 @@ const Sidebar = () => {
 					className="flex items-center gap-2 py-3 px-2 rounded-sm hover:shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-900">
 					<Bell size={16} absoluteStrokeWidth />
 					<p>Notifications</p>
+				</div>
+				<div
+					onClick={() => {
+						navigate("/");
+						setOpen(false);
+					}}
+					className="flex items-center gap-2 py-3 px-2 rounded-sm hover:shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-900">
+					<LogOut size={16} className="text-red-600" absoluteStrokeWidth />
+					<p>Logout</p>
 				</div>
 			</div>
 		</>

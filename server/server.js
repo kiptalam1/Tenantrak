@@ -1,18 +1,27 @@
 import express from "express";
 import dotenv from "dotenv";
-import connectToMongoDb from "./db/mongo.db.js";
 dotenv.config();
+import cookieParser from "cookie-parser";
+
+//functions;
+import connectToMongoDb from "./db/mongo.db.js";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
-app.get("/", (req, res) => {
-	res.send("hello world");
-});
+// middleware;
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+
+// routes;
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 5000;
+
+connectToMongoDb();
 
 app.listen(PORT, () => {
 	console.log(`server is running at http://localhost:${PORT}`);
 	console.log("Connecting to mongoDB...");
-	connectToMongoDb();
 });

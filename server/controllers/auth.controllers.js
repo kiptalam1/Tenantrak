@@ -70,3 +70,13 @@ export async function loginUser(req, res) {
 		return res.status(500).json({ error: "Internal server error." });
 	}
 }
+
+
+export async function logoutUser(req, res) {
+	res.clearCookie("token", {
+		httpOnly: true,
+		secure: true,
+		sameSite: "strict",
+	});
+	res.status(200).json({ message: "Logged out successfully." });
+}

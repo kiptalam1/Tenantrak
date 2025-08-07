@@ -58,8 +58,13 @@ export const AuthProvider = ({ children }) => {
 	};
 
 	const logout = async () => {
-		await fetch("/api/auth/logout", { method: "POST" });
+		const res = await fetch("/api/auth/logout", { method: "POST" });
+		const data = await res.json();
 		setUser(null);
+		toast.success(data?.message);
+		setTimeout(() => {
+			navigate("/");
+		}, 2000);
 	};
 
 	return (

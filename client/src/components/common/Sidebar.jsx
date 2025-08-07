@@ -14,10 +14,12 @@ import {
 	LucideLogOut,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Sidebar = () => {
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
+	const { logout } = useAuth();
 
 	return (
 		<>
@@ -130,7 +132,7 @@ const Sidebar = () => {
 				</div>
 				<div
 					onClick={() => {
-						navigate("/");
+						logout();
 						setOpen(false);
 					}}
 					className="flex items-center gap-2 py-3 px-2 rounded-sm hover:shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-900">

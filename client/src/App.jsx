@@ -12,12 +12,18 @@ function App() {
 		<>
 			<Routes>
 				<Route path="/" element={<LandingPage />} />
-				<Route path="/auth/register" element={<RegisterPage />} />
+				<Route
+					path="/auth/register"
+					element={!user ? <RegisterPage /> : <Navigate to="/dashboard" />}
+				/>
 				<Route
 					path="/dashboard"
 					element={user ? <Dashboard /> : <Navigate to="/" />}
 				/>
-				<Route path="/properties" element={<Properties />} />
+				<Route
+					path="/properties"
+					element={user ? <Properties /> : <Navigate to="/" />}
+				/>
 			</Routes>
 			<Toaster />
 		</>

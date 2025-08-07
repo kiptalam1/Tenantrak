@@ -43,7 +43,7 @@ export async function loginUser(req, res) {
 		);
 
 		if (!user) {
-			return res.status(404).json({ error: "User not found. Please signup" });
+			return res.status(404).json({ error: "User not found. Please signup." });
 		}
 
 		const isMatch = await comparePassword(password, user.password);
@@ -52,11 +52,12 @@ export async function loginUser(req, res) {
 			return res.status(403).json({ error: "Wrong password." });
 		}
 
-		const token = generateCookieAndSendToken(user._id, res); // Sends cookie too
+		// Set cookie with JWT
+		generateCookieAndSendToken(user._id, res);
 
+		// Send only non-sensitive user info
 		return res.status(200).json({
 			message: "Login successful.",
-			token,
 			user: {
 				id: user._id,
 				fullName: user.fullName,
@@ -70,7 +71,6 @@ export async function loginUser(req, res) {
 		return res.status(500).json({ error: "Internal server error." });
 	}
 }
-
 
 export async function logoutUser(req, res) {
 	res.clearCookie("token", {

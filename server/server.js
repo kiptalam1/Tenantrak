@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 //functions;
 import connectToMongoDb from "./db/mongo.db.js";
 import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // routes;
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 

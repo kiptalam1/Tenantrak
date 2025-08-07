@@ -1,8 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import toast from "react-hot-toast";
 
 const LoginForm = () => {
+	const [formData, setFormData] = useState({
+		email: "",
+		password: "",
+	});
 	const navigate = useNavigate();
+	const { login, loading } = useAuth();
+
+	const handleInputChange = (e) => {
+		const { name, value } = e.target;
+		setFormData((prev) => ({ ...prev, [name]: value }));
+	};
+
+	const handleLogin = async (e) => {
+		e.preventDefault();
+		if (!formData.email || !formData.password) {
+			toast.error("Please fill all fields");
+			return;
+		}
+		try {
+			await login(formData);
+		} catch (error) {
+			console.error("Error in handleLogin", error.message);
+		}
+	};
+
 	return (
 		<div className="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-md w-full max-w-md">
 			<h2 className="text-center text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
@@ -18,8 +44,12 @@ const LoginForm = () => {
 					<input
 						type="email"
 						id="email"
+						required
 						className="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
 						placeholder="you@example.com"
+						name="email"
+						value={formData.email}
+						onChange={handleInputChange}
 					/>
 				</div>
 				<div>
@@ -30,16 +60,20 @@ const LoginForm = () => {
 					</label>
 					<input
 						type="password"
+						required
 						id="password"
 						className="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
 						placeholder="••••••••"
+						name="password"
+						value={formData.password}
+						onChange={handleInputChange}
 					/>
 				</div>
 				<button
 					type="submit"
-					onClick={() => navigate("/dashboard")}
+					onClick={handleLogin}
 					className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-400 text-white font-semibold rounded-lg shadow-sm disabled:bg-slate-300 dark:disabled:bg-slate-700 transition">
-					Sign In
+					{loading ? "Loading" : "Sign In"}
 				</button>
 				<span
 					onClick={() => navigate("/auth/register")}

@@ -24,11 +24,7 @@ export async function registerUser(req, res) {
 
 		await user.save();
 
-		const landlord = new Landlord({
-			fullName,
-			email,
-			userId: user._id,
-		});
+		const landlord = new Landlord({ user: user._id });
 
 		await landlord.save();
 

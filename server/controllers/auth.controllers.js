@@ -1,3 +1,4 @@
+import Landlord from "../models/landlord.model.js";
 import User from "../models/user.model.js";
 import { comparePassword, hashPassword } from "../utils/password.utils.js";
 import generateCookieAndSendToken from "../utils/token.utils.js";
@@ -22,11 +23,21 @@ export async function registerUser(req, res) {
 		});
 
 		await user.save();
+
+		const landlord = new Landlord({
+			fullName,
+			email,
+			userId: user._id,
+		});
+
+		await landlord.save();
+
 		user.password = undefined;
 
 		return res.status(201).json({
 			message: "Registration successful.",
 			user,
+			landlord,
 		});
 	} catch (error) {
 		console.error("Error in registerUser :", error);

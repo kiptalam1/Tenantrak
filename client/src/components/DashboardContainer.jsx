@@ -1,11 +1,21 @@
 import React from "react";
 import DashboardCard from "./cards/DashboardCard";
 import { ChartLine, DollarSign, Home, Users } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import LoaderSpinner from "./common/LoaderSpinner";
 
 const DashboardContainer = () => {
+	const { loading } = useAuth();
+
+	if (loading) return <LoaderSpinner />;
+
 	return (
-		<div className="">
-			<div className="flex items-center flex-wrap gap-4 px-4 py-16 sm:py-4">
+		<div className="w-full px-4 py-16 sm:py-4">
+			<div className="flex items-center justify-between p-4 mt-2">
+				<p className="text-gray-900	dark:text-gray-100">Dashboard & Reports</p>
+			</div>
+
+			<div className="flex items-center flex-wrap gap-4 ">
 				<DashboardCard
 					what={"Total properties"}
 					icon={

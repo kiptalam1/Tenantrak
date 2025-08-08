@@ -9,66 +9,89 @@ export const AuthProvider = ({ children }) => {
 	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
 
+	// Fetch user on mount and when auth state changes
 	useEffect(() => {
 		const fetchUser = async () => {
 			try {
-				const res = await fetch("/api/users/me"); // Your endpoint to get current user
-				if (!res.ok) throw new Error("Not authenticated");
+				setLoading(true);
+				const res = await fetch("/api/users/me", {
+					credentials: "include", // Necessary for cookies
+				});
+
+				if (!res.ok) {
+					if (res.status === 401) {
+						// JWT expired or invalid
+						clearAuth();
+					}
+					throw new Error("Not authenticated");
+				}
+
 				const data = await res.json();
 				setUser(data.user);
 			} catch (err) {
-				console.error("Error in AuthContext ", err.message);
-				setUser(null);
+				console.error("Auth error:", err.message);
+				clearAuth();
 			} finally {
 				setLoading(false);
 			}
 		};
+
 		fetchUser();
 	}, []);
 
+	const clearAuth = () => {
+		setUser(null);
+	};
+
 	const login = async (credentials) => {
 		try {
+			setLoading(true);
 			const res = await fetch("/api/auth/login", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				credentials: "include", // Include cookies if using httpOnly auth
+				credentials: "include", // Required to receive cookies
 				body: JSON.stringify(credentials),
 			});
 
-			const data = await res.json();
-			// console.log("login data", data.error);
-
 			if (!res.ok) {
-				// toast.error(data.error || "Login failed");
-				throw new Error(data?.error || "Login failed");
+				const errorData = await res.json();
+				throw new Error(errorData?.message || "Login failed");
 			}
 
+			const data = await res.json();
 			setUser(data.user);
-			toast.success(data.message);
-			setTimeout(() => {
-				navigate("/dashboard");
-			}, 1000);
-			return data.user;
+			toast.success("Login successful");
+			navigate("/dashboard");
 		} catch (err) {
-			toast.error(err.message || "Something went wrong");
-			setTimeout(() => {
-				navigate("/");
-			}, 2000);
+			toast.error(err.message);
+			throw err;
+		} finally {
+			setLoading(false);
 		}
 	};
 
 	const logout = async () => {
-		const res = await fetch("/api/auth/logout", { method: "POST" });
-		const data = await res.json();
-		setUser(null);
-		toast.success(data?.message);
-		setTimeout(() => {
-			navigate("/");
-		}, 2000);
+		try {
+			await fetch("/api/auth/logout", {
+				method: "POST",
+				credentials: "include", // Required to clear cookies
+			});
+		} finally {
+			clearAuth();
+			toast.success("Logged out");
+			navigate("/login");
+		}
 	};
 
 	return (
-		<AuthContext.Provider value={{ user, loading, login, logout }}>
+		<AuthContext.Provider
+			value={{
+				user,
+				loading,
+				login,
+				logout,
+				isAuthenticated: !!user,
+			}}>
 			{children}
 		</AuthContext.Provider>
 	);

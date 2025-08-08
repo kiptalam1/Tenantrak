@@ -53,7 +53,8 @@ export async function loginUser(req, res) {
 		}
 
 		// Set cookie with JWT
-		generateCookieAndSendToken(user._id, res);
+		const token = generateCookieAndSendToken(user._id, res);
+		// console.log("token", token);
 
 		// Send only non-sensitive user info
 		return res.status(200).json({
@@ -65,6 +66,7 @@ export async function loginUser(req, res) {
 				role: user.role,
 				createdAt: user.createdAt,
 			},
+			token,
 		});
 	} catch (error) {
 		console.error("Error in loginUser:", error);

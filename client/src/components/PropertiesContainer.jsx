@@ -16,7 +16,7 @@ const PropertiesContainer = () => {
 				<p className="text-gray-900	dark:text-gray-100">Property Management</p>
 				<Button
 					onClick={openModal}
-					className="self-end"
+					className="self-end "
 					icon={<Plus />}
 					label={"Add Property"}
 				/>

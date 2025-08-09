@@ -8,6 +8,7 @@ import cors from "cors";
 import connectToMongoDb from "./db/mongo.db.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import buildingRoutes from "./routes/building.routes.js";
 
 const app = express();
 
@@ -25,6 +26,8 @@ app.use(
 // routes;
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/buildings", buildingRoutes);
+
 
 
 const PORT = process.env.PORT || 5000;

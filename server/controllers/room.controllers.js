@@ -1,0 +1,96 @@
+import mongoose from "mongoose";
+import Room from "../models/room.model.js";
+import User from "../models/user.model.js";
+import Landlord from "../models/landlord.model.js";
+import Building from "../models/building.model.js";
+
+export async function createRoom(req, res) {
+	const { roomName, roomType, status, bed, bath, price, buildingName } =
+		req.body;
+	const userId = new mongoose.Types.ObjectId(req.user.userId);
+
+	if (!buildingName?.trim()) {
+		return res.status(400).json({ error: "Building name is required" });
+	}
+	if (!roomName?.trim()) {
+		return res.status(400).json({ error: "Room name is required" });
+	}
+
+	try {
+		// 1️⃣ Validate user role
+		const user = await User.findOne({ _id: userId, role: "owner" }).lean();
+		if (!user) {
+			return res
+				.status(403)
+				.json({ error: "Only owners can register properties" });
+		}
+
+		// 2️⃣ Get landlord document
+		const landlord = await Landlord.findOne({ user: userId });
+		if (!landlord) {
+			return res.status(404).json({ error: "Landlord profile not found" });
+		}
+
+		const trimmedBuildingName = buildingName.trim();
+
+		// 3️⃣ Check if building exists for landlord
+		let building = await Building.findOne({
+			landlord: landlord._id,
+			buildingName: { $regex: `^${trimmedBuildingName}$`, $options: "i" },
+		});
+
+		// 4️⃣ Create building if not found
+		if (!building) {
+			building = new Building({
+				buildingName: trimmedBuildingName,
+				landlord: landlord._id,
+			});
+			await building.save();
+
+			// Append building to landlord.buildings
+			await Landlord.updateOne(
+				{ _id: landlord._id },
+				{ $addToSet: { buildings: building._id } }
+			);
+		}
+
+		// 5️⃣ Check if room exists
+		const existingRoom = await Room.findOne({
+			building: building._id,
+			roomName: { $regex: `^${roomName.trim()}$`, $options: "i" },
+		});
+
+		if (existingRoom) {
+			return res
+				.status(400)
+				.json({ error: "This room already exists in this building" });
+		}
+
+		// 6️⃣ Create room
+		const newRoom = new Room({
+			roomName: roomName.trim(),
+			roomType,
+			status,
+			bed,
+			bath,
+			price,
+			building: building._id,
+		});
+		await newRoom.save();
+
+		// Append room to building
+		await Building.updateOne(
+			{ _id: building._id },
+			{ $addToSet: { rooms: newRoom._id } }
+		);
+
+		return res.status(201).json({
+			message: "Room created successfully",
+			room: newRoom,
+			building,
+		});
+	} catch (error) {
+		console.error("Error in createRoom", error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+}

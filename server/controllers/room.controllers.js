@@ -94,3 +94,40 @@ export async function createRoom(req, res) {
 		return res.status(500).json({ error: "Internal server error" });
 	}
 }
+
+
+export async function getAllRooms(req, res) {
+	const userId = req.user.userId;
+
+	try {
+		const landlord = await Landlord.findOne({ user: userId })
+			.populate({
+				path: "buildings",
+				select: "buildingName address",
+				populate: {
+					path: "rooms",
+					select: "roomName roomType tenants status bath bed price",
+				},
+			})
+			.lean();
+
+		if (!landlord) {
+			// User exists but no landlord profile, return empty rooms array
+			return res.status(200).json({ rooms: [] });
+		}
+
+		// Flatten rooms with building info for easy frontend consumption
+		const rooms = landlord.buildings.flatMap((building) =>
+			(building.rooms || []).map((room) => ({
+				...room,
+				buildingName: building.buildingName,
+				address: building.address || "",
+			}))
+		);
+
+		return res.status(200).json({ rooms });
+	} catch (error) {
+		console.error("Error in getAllRooms", error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+}

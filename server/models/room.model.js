@@ -18,6 +18,16 @@ const RoomSchema = new mongoose.Schema({
 		enum: ["vacant", "occupied", "maintenance"],
 		default: "vacant",
 	},
+	bed: {
+		type: Number,
+	},
+	bath: {
+		type: Number,
+	},
+	price: {
+		type: Number,
+		required: true,
+	},
 });
 
 const Room = mongoose.model("User", RoomSchema);

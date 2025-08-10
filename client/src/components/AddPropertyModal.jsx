@@ -49,7 +49,7 @@ const AddPropertyModal = ({ onClose, onPropertyCreated }) => {
 					? formData.customBuilding
 					: formData.building,
 		};
-		console.log("Submitted:", payload);
+		// console.log("Submitted:", payload);
 		if (
 			!formData.roomType ||
 			(formData.building === "other" && !formData.customBuilding) ||

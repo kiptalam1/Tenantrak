@@ -131,3 +131,53 @@ export async function getAllRooms(req, res) {
 		return res.status(500).json({ error: "Internal server error" });
 	}
 }
+
+export async function deleteRoom(req, res) {
+	const userId = req.user.userId;
+	const id = req.params.id;
+
+	if (!mongoose.Types.ObjectId.isValid(id)) {
+		return res.status(400).json({ error: "Invalid room ID" });
+	}
+
+	try {
+		const landlordExists = await Landlord.findOne({ user: userId })
+			.select("user")
+			.lean();
+		if (!landlordExists)
+			return res
+				.status(403)
+				.json({ error: "Only landlords can perform this operation" });
+
+		const roomExists = await Room.findById(id).select("building").lean();
+		if (!roomExists) return res.status(404).json({ error: "Room not found" });
+
+		const buildingId = roomExists.building;
+		const buildingExists = await Building.findById(buildingId)
+			.select("landlord")
+			.lean();
+		if (!buildingExists)
+			return res.status(404).json({ error: "Building not found" });
+
+		const user = landlordExists.user;
+		if (userId !== user.toString()) {
+			return res
+				.status(403)
+				.json({ error: "Only owners can perform this operation" });
+		}
+
+		// or;
+		// if (!buildingExists.landlord.equals(landlordExists._id)) {
+		// 	return res
+		// 		.status(403)
+		// 		.json({ error: "Only owners can delete this room" });
+		// }
+
+		// now delete the room;
+		const room = await Room.findByIdAndDelete(id);
+		return res.status(200).json({ message: "Room deleted successfully", room });
+	} catch (error) {
+		console.error("Error in deleteRoom :", error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+}

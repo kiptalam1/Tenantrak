@@ -22,6 +22,8 @@ const PropertiesContainer = () => {
 					toast.error(data?.error || "Failed to load properties");
 					return;
 				}
+				console.log("data :", data);
+
 				setRooms(data.rooms);
 			} catch (error) {
 				console.error(error);
@@ -32,6 +34,11 @@ const PropertiesContainer = () => {
 		};
 		fetchProperties();
 	}, []);
+
+	// ⬅️ This is the instant update callback when a new room is added;
+	const handlePropertyCreated = (newRoom) => {
+		setRooms((prevRooms) => [newRoom, ...prevRooms]);
+	};
 
 	// delete a room;
 	const handleDelete = async (id) => {
@@ -71,7 +78,12 @@ const PropertiesContainer = () => {
 
 	return (
 		<div className="w-full px-4 py-16 sm:py-4">
-			{isModalOpen && <AddPropertyModal onClose={closeModal} />}
+			{isModalOpen && (
+				<AddPropertyModal
+					onPropertyCreated={handlePropertyCreated}
+					onClose={closeModal}
+				/>
+			)}
 			<div className="flex items-center justify-between p-4">
 				<p className="text-gray-900	dark:text-gray-100">Property Management</p>
 				<Button
@@ -82,6 +94,11 @@ const PropertiesContainer = () => {
 				/>
 			</div>
 			<div className="flex items-center flex-wrap gap-4">
+				{rooms.length === 0 && (
+					<p className="w-full text-center text-sm italic text-gray-400 dark:text-gray-300">
+						Add property to display
+					</p>
+				)}
 				{rooms &&
 					rooms.map((room) => (
 						<PropertyCard

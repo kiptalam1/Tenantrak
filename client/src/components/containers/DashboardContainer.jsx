@@ -1,8 +1,8 @@
 import React from "react";
-import DashboardCard from "./cards/DashboardCard";
+import DashboardCard from "../cards/DashboardCard";
 import { ChartLine, DollarSign, Home, Users } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
-import LoaderSpinner from "./common/LoaderSpinner";
+import { useAuth } from "../../contexts/AuthContext";
+import LoaderSpinner from "../common/LoaderSpinner";
 
 const DashboardContainer = () => {
 	const { loading } = useAuth();

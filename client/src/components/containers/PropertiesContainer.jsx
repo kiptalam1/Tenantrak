@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import PropertyCard from "./cards/PropertyCard";
-import Button from "./common/Button";
+import PropertyCard from "../cards/PropertyCard";
+import Button from "../common/Button";
 import { Plus } from "lucide-react";
-import AddPropertyModal from "./AddPropertyModal";
+import AddPropertyModal from "../AddPropertyModal";
 
 const PropertiesContainer = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);

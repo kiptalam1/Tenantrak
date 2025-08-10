@@ -12,15 +12,18 @@ const PropertyCard = ({
 	onDelete,
 }) => {
 	const statusColorMap = {
-		occupied: "bg-green-100 text-green-600",
-		vacant: "bg-yellow-100 text-yellow-600",
-		maintenance: "bg-red-100 text-red-600",
+		occupied:
+			"bg-green-50 text-green-600 dark:bg-inherit dark:border dark:border-gray-700 dark:text-green-200",
+		vacant:
+			"bg-yellow-50 text-yellow-600 dark:bg-inherit dark:border dark:border-gray-700 dark:text-yellow-200",
+		maintenance:
+			"bg-red-50 text-red-400 dark:bg-inherit dark:border dark:border-gray-700 dark:text-red-200",
 	};
 	return (
 		<div className="text-sm bg-gray-50 dark:bg-neutral-900 text-gray-900 dark:text-gray-100 flex flex-col justify-between gap-3 w-full sm:w-64 md:w-72 max-w-md border border-gray-300 dark:border-gray-700 rounded-xl p-5 shadow-sm">
 			<div className="flex items-center justify-between">
 				<p className="font-bold italic">
-					{buildingName} {roomName}
+					{buildingName}-{roomName}
 				</p>
 				<div className={`${statusColorMap[status]} py-0.5 px-2 rounded-lg`}>
 					{status}
@@ -46,11 +49,11 @@ const PropertyCard = ({
 				<div className="flex items-center justify-between gap-3">
 					<Edit
 						size={16}
-						className="text-indigo-600 cursor-pointer	dark:text-indigo-500 hover:text-indigo-700	dark:hover:text-indigo-400 transition"
+						className="text-indigo-400 cursor-pointer	dark:text-indigo-300 hover:text-indigo-800	dark:hover:text-indigo-700 transition"
 					/>
 					<Trash2
 						size={16}
-						className="text-red-400 cursor-pointer hover:text-red-800 transition"
+						className="text-red-400 dark:text-red-300 cursor-pointer hover:text-red-800 transition"
 						onClick={onDelete}
 					/>
 				</div>

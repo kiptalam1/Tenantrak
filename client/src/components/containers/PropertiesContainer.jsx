@@ -4,32 +4,71 @@ import PropertyCard from "../cards/PropertyCard";
 import Button from "../common/Button";
 import { Plus } from "lucide-react";
 import AddPropertyModal from "../AddPropertyModal";
+import LoaderSpinner from "../common/LoaderSpinner";
 
 const PropertiesContainer = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
-
+	const [loading, setLoading] = useState(true);
 	const [rooms, setRooms] = useState([]);
 
 	// fetch all rooms;
 	useEffect(() => {
 		const fetchProperties = async () => {
 			try {
+				setLoading(true);
 				const res = await fetch("/api/rooms/all", { credentials: "include" });
 				const data = await res.json();
-				// console.dir(data);
-				if (!res.ok)
-					return toast.error(data?.error || "Failed to load properties");
+				if (!res.ok) {
+					toast.error(data?.error || "Failed to load properties");
+					return;
+				}
 				setRooms(data.rooms);
 			} catch (error) {
 				console.error(error);
 				toast.error("Something went wrong");
+			} finally {
+				setLoading(false);
 			}
 		};
 		fetchProperties();
 	}, []);
 
+	// delete a room;
+	const handleDelete = async (id) => {
+		if (!window.confirm("Are you sure you want to delete this property?"))
+			return;
+
+		try {
+			const res = await fetch(`/api/rooms/room/${id}`, {
+				method: "DELETE",
+				credentials: "include",
+			});
+			const data = await res.json();
+
+			if (!res.ok) {
+				toast.error(data?.error || "Failed to delete property");
+				return;
+			}
+
+			toast.success(data?.message || "Property deleted successfully");
+			setRooms((prev) => prev.filter((room) => room._id !== id));
+		} catch (err) {
+			console.error(err);
+			toast.error("Something went wrong");
+		}
+	};
+
 	const openModal = () => setIsModalOpen(true);
 	const closeModal = () => setIsModalOpen(false);
+
+	if (loading) {
+		return (
+			<div className="flex justify-center min-h-screen w-full">
+				<LoaderSpinner />
+			</div>
+		);
+	}
+
 	return (
 		<div className="w-full px-4 py-16 sm:py-4">
 			{isModalOpen && <AddPropertyModal onClose={closeModal} />}
@@ -55,6 +94,7 @@ const PropertiesContainer = () => {
 							bed={room.bed}
 							price={room.price}
 							tenant={room.tenants[0]}
+							onDelete={() => handleDelete(room._id)}
 						/>
 					))}
 			</div>

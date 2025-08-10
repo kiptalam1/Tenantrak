@@ -9,6 +9,7 @@ const PropertyCard = ({
 	price,
 	roomType,
 	tenant,
+	onDelete,
 }) => {
 	const statusColorMap = {
 		occupied: "bg-green-100 text-green-600",
@@ -50,6 +51,7 @@ const PropertyCard = ({
 					<Trash2
 						size={16}
 						className="text-red-400 cursor-pointer hover:text-red-800 transition"
+						onClick={onDelete}
 					/>
 				</div>
 			</div>

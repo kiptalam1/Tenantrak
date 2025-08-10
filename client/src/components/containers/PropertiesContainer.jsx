@@ -10,7 +10,7 @@ const PropertiesContainer = () => {
 
 	const [rooms, setRooms] = useState([]);
 
-	// fetch all properties;
+	// fetch all rooms;
 	useEffect(() => {
 		const fetchProperties = async () => {
 			try {

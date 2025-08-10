@@ -11,9 +11,9 @@ const PropertyCard = ({
 	tenant,
 }) => {
 	const statusColorMap = {
-		occupied: "bg-green-200 text-green-800",
-		vacant: "bg-yellow-200 text-yellow-800",
-		maintenance: "bg-red-200 text-red-800",
+		occupied: "bg-green-100 text-green-600",
+		vacant: "bg-yellow-100 text-yellow-600",
+		maintenance: "bg-red-100 text-red-600",
 	};
 	return (
 		<div className="text-sm bg-gray-50 dark:bg-neutral-900 text-gray-900 dark:text-gray-100 flex flex-col justify-between gap-3 w-full sm:w-64 md:w-72 max-w-md border border-gray-300 dark:border-gray-700 rounded-xl p-5 shadow-sm">
@@ -49,7 +49,7 @@ const PropertyCard = ({
 					/>
 					<Trash2
 						size={16}
-						className="text-red-600 cursor-pointer	dark:text-red-500 hover:text-red-700	dark:hover:text-red-400 transition"
+						className="text-red-400 cursor-pointer hover:text-red-800 transition"
 					/>
 				</div>
 			</div>

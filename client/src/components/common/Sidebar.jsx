@@ -135,7 +135,7 @@ const Sidebar = () => {
 						logout();
 						setOpen(false);
 					}}
-					className="flex items-center gap-2 py-3 px-2 rounded-sm hover:shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-900">
+					className="flex items-center gap-2 py-3 px-2 rounded-sm hover:shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-900 hover:text-red-600 transition">
 					<LogOut size={16} className="text-red-600" absoluteStrokeWidth />
 					<p>Logout</p>
 				</div>

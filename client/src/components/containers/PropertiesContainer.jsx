@@ -22,7 +22,7 @@ const PropertiesContainer = () => {
 					toast.error(data?.error || "Failed to load properties");
 					return;
 				}
-				// console.log("data :", data);
+				console.log("data :", data);
 
 				setRooms(data.rooms);
 			} catch (error) {
@@ -110,7 +110,13 @@ const PropertiesContainer = () => {
 							bath={room.bath}
 							bed={room.bed}
 							price={room.price}
-							tenant={room.tenants[0]}
+							tenant={
+								room.tenants[0]?.fullName
+									? room.tenants[0].fullName
+											.toLowerCase()
+											.replace(/\b\w/g, (char) => char.toUpperCase())
+									: ""
+							}
 							onDelete={() => handleDelete(room._id)}
 						/>
 					))}

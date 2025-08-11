@@ -44,7 +44,9 @@ const PropertyCard = ({
 			<div className="flex items-center justify-between gap-3">
 				<div>
 					<p className="font-bold">Ksh {price}/month</p>
-					<p className="text-xs">Tenant: {tenant}</p>
+					<p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+						Tenant: {tenant}
+					</p>
 				</div>
 				<div className="flex items-center justify-between gap-3">
 					<Edit

@@ -7,7 +7,8 @@ import Properties from "./pages/Properties";
 import { useAuth } from "./contexts/AuthContext";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import LoaderSpinner from "./components/common/LoaderSpinner";
-import { useEffect } from "react";
+// import { useEffect } from "react";
+import Tenants from "./pages/Tenants";
 
 function App() {
 	const { user, loading } = useAuth();
@@ -41,6 +42,14 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<Properties />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path="/tenants"
+					element={
+						<ProtectedRoute>
+							<Tenants />
 						</ProtectedRoute>
 					}
 				/>

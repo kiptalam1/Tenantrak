@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import PropertyCard from "../cards/PropertyCard";
 import Button from "../common/Button";
 import { Plus } from "lucide-react";
-import AddPropertyModal from "../AddPropertyModal";
+import AddPropertyModal from "../modals/AddPropertyModal";
 import LoaderSpinner from "../common/LoaderSpinner";
 
 const PropertiesContainer = () => {

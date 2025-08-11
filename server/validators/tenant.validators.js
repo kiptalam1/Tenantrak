@@ -33,6 +33,10 @@ export const tenantValidators = checkSchema({
 		},
 	},
 	phone: {
+		trim: true,
+		notEmpty: {
+			errorMessage: "Phone number is required",
+		},
 		custom: {
 			options: (value, { req }) => {
 				// Default country if user provides local format
@@ -48,6 +52,12 @@ export const tenantValidators = checkSchema({
 				req.body.phone = phoneNumber.number; // +254707444645
 				return true;
 			},
+		},
+	},
+	roomName: {
+		trim: true,
+		notEmpty: {
+			errorMessage: "Room name is required",
 		},
 	},
 });

@@ -1,14 +1,19 @@
 import mongoose from "mongoose";
 
-const TenantSchema = new mongoose.Schema({
-	fullName: { type: String, required: true },
-	email: String,
-	phone: String,
-	room: { type: mongoose.Schema.Types.ObjectId, ref: "Room", required: true },
-	leaseStart: Date,
-	leaseEnd: Date,
-	user: [{ type: mongoose.Schema.ObjectId, ref: "User" }],
-});
+const TenantSchema = new mongoose.Schema(
+	{
+		fullName: { type: String, required: true, unique: true },
+		email: { type: String, required: false, trim: true, lowercase: true },
+		phone: String,
+		room: { type: mongoose.Schema.Types.ObjectId, ref: "Room", required: true },
+		leaseStart: { type: Date, default: Date.now },
+		leaseEnd: {
+			type: Date,
+			default: "",
+		},
+	},
+	{ timestamps: true }
+);
 
-const Tenant = mongoose.model("User", TenantSchema);
+const Tenant = mongoose.model("Tenant", TenantSchema);
 export default Tenant;

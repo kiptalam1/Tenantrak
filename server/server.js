@@ -10,6 +10,7 @@ import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import buildingRoutes from "./routes/building.routes.js";
 import roomRoutes from "./routes/room.routes.js";
+import tenantRoutes from "./routes/tenant.routes.js";
 
 const app = express();
 
@@ -29,6 +30,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/buildings", buildingRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/tenants", tenantRoutes);
+
 
 
 

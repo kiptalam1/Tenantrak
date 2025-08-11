@@ -87,6 +87,7 @@ export async function createTenant(req, res) {
 			fullName,
 			email: email || null,
 			phone,
+			status: "active",
 			room: room._id,
 		});
 		await newTenant.save({ session });

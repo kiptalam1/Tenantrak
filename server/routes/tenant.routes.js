@@ -1,5 +1,8 @@
 import express from "express";
-import { createTenant } from "../controllers/tenant.controllers.js";
+import {
+	createTenant,
+	getAllTenants,
+} from "../controllers/tenant.controllers.js";
 import verifyToken from "../middlewares/verifyToken.js";
 import { tenantValidators } from "../validators/tenant.validators.js";
 import { handleValidationErrors } from "../middlewares/validationErrorsHandler.js";
@@ -13,5 +16,5 @@ router.post(
 	handleValidationErrors,
 	createTenant
 );
-
+router.get("/all", verifyToken, getAllTenants);
 export default router;

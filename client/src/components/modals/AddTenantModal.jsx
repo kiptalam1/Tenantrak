@@ -23,7 +23,7 @@ const AddTenantModal = ({ onClose, onTenantCreated }) => {
 				if (res.ok) {
 					setRooms(data.rooms || []);
 				}
-				console.log("rooms :", data);
+				// console.log("rooms :", data);
 			} catch (err) {
 				console.error(err);
 			} finally {
@@ -111,11 +111,13 @@ const AddTenantModal = ({ onClose, onTenantCreated }) => {
 							onChange={handleChange}
 							className="w-full p-2 rounded bg-gray-100 dark:bg-neutral-700 outline-none">
 							<option value="">Select Room</option>
-							{rooms.map((r) => (
-								<option key={r._id} value={r.roomName}>
-									{r.roomName} - {r.buildingName}
-								</option>
-							))}
+							{rooms
+								.filter((r) => r.status === "vacant")
+								.map((r) => (
+									<option key={r._id} value={r.roomName}>
+										{r.roomName} - {r.buildingName}
+									</option>
+								))}
 						</select>
 					)}
 

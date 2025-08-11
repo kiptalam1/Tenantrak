@@ -14,7 +14,6 @@ const TenantSchema = new mongoose.Schema(
 		leaseStart: { type: Date, default: Date.now },
 		leaseEnd: {
 			type: Date,
-			default: "",
 		},
 	},
 	{ timestamps: true }

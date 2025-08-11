@@ -108,12 +108,11 @@ const TenantsContainer = () => {
 							phone={tenant.phone}
 							email={tenant.email}
 							leaseEnd={
-								tenant.leaseEnd &&
 								new Date(tenant.leaseEnd).toLocaleDateString("en-US", {
 									year: "numeric",
 									month: "short",
 									day: "numeric",
-								})
+								}) || null
 							}
 							leaseStart={new Date(tenant.leaseStart).toLocaleDateString(
 								"en-US",

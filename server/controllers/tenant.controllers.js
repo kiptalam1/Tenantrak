@@ -62,7 +62,8 @@ export async function createTenant(req, res) {
 	session.startTransaction();
 
 	const userId = req.user.userId;
-	const { fullName, email, phone, roomName, status } = req.body;
+	const { fullName, email, phone, roomName, status, leaseStart, leaseEnd } =
+		req.body;
 
 	try {
 		// check if logged in user is a landlord;
@@ -141,6 +142,8 @@ export async function createTenant(req, res) {
 			phone,
 			status: status || "active",
 			room: room._id,
+			leaseEnd,
+			leaseStart,
 		});
 		await newTenant.save({ session });
 

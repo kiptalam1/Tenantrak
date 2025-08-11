@@ -22,7 +22,7 @@ const PropertiesContainer = () => {
 					toast.error(data?.error || "Failed to load properties");
 					return;
 				}
-				console.log("data :", data);
+				// console.log("data :", data);
 
 				setRooms(data.rooms);
 			} catch (error) {

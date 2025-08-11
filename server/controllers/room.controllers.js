@@ -107,6 +107,10 @@ export async function getAllRooms(req, res) {
 				populate: {
 					path: "rooms",
 					select: "roomName roomType tenants status bath bed price",
+					populate: {
+						path: "tenants",
+						select: "fullName",
+					},
 				},
 			})
 			.lean();

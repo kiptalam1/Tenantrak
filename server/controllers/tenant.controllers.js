@@ -5,12 +5,64 @@ import Room from "../models/room.model.js";
 import Building from "../models/building.model.js";
 import User from "../models/user.model.js";
 
+
+export async function getAllTenants(req, res) {
+	const userId = req.user.userId;
+	try {
+		// get landlord buildings
+		const landlord = await Landlord.findOne({ user: userId })
+			.select("buildings")
+			.lean();
+
+		if (!landlord?.buildings?.length) {
+			return res.status(200).json({ tenants: [] });
+		}
+
+		// fetch tenants, populate room -> building, selecting only needed fields
+		const tenants = await Tenant.find()
+			.select(
+				"fullName email phone status room leaseStart leaseEnd createdAt updatedAt"
+			)
+			.populate({
+				path: "room",
+				match: { building: { $in: landlord.buildings } }, // limit to this landlord
+				select: "roomName building price",
+				populate: { path: "building", select: "buildingName" },
+			})
+			.lean();
+
+		// filter out tenants whose room doesn't belong to this landlord and flatten
+		const flattened = tenants
+			.filter((t) => t.room) // remove tenants not in landlord's rooms
+			.map((t) => ({
+				_id: t._id,
+				fullName: t.fullName,
+				email: t.email ?? null,
+				phone: t.phone ?? null,
+				status: t.status ?? null,
+				room: t.room?._id ?? null,
+				roomName: t.room?.roomName ?? null,
+				buildingName: t.room?.building?.buildingName ?? null,
+				price: t.room?.price ?? null,
+				leaseStart: t.leaseStart ?? null,
+				leaseEnd: t.leaseEnd ?? null,
+				createdAt: t.createdAt ?? null,
+				updatedAt: t.updatedAt ?? null,
+			}));
+
+		return res.status(200).json({ tenants: flattened });
+	} catch (error) {
+		console.error("Error in getAllTenants:", error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+}
+
 export async function createTenant(req, res) {
 	const session = await mongoose.startSession();
 	session.startTransaction();
 
 	const userId = req.user.userId;
-	const { fullName, email, phone, roomName } = req.body;
+	const { fullName, email, phone, roomName, status } = req.body;
 
 	try {
 		// check if logged in user is a landlord;
@@ -87,7 +139,7 @@ export async function createTenant(req, res) {
 			fullName,
 			email: email || null,
 			phone,
-			status: "active",
+			status: status || "active",
 			room: room._id,
 		});
 		await newTenant.save({ session });
@@ -102,7 +154,26 @@ export async function createTenant(req, res) {
 		await session.commitTransaction();
 		session.endSession();
 
-		res.status(201).json({ message: "Tenant added successfully", newTenant });
+		// fetch populated tenant
+		const populatedTenant = await Tenant.findById(newTenant._id)
+			.populate({
+				path: "room",
+				select: "roomName building",
+				populate: { path: "building", select: "buildingName" },
+			})
+			.lean();
+
+		// flatten structure
+		const flatTenant = {
+			...populatedTenant,
+			roomName: populatedTenant.room?.roomName || null,
+			buildingName: populatedTenant.room?.building?.buildingName || null,
+		};
+
+		res.status(201).json({
+			message: "Tenant added successfully",
+			tenant: flatTenant,
+		});
 	} catch (error) {
 		await session.abortTransaction();
 		session.endSession();

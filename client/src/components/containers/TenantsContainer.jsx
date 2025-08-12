@@ -40,6 +40,12 @@ const TenantsContainer = () => {
 		setTenants((prevTenants) => [newTenant, ...prevTenants]);
 	};
 
+	const handleTenantUpdated = (updatedTenant) => {
+		setTenants((prev) =>
+			prev.map((t) => (t._id === updatedTenant._id ? updatedTenant : t))
+		);
+	};
+
 	// -> TODO  delete a tenant;
 	const handleDelete = async (id) => {
 		if (!window.confirm("Are you sure you want to remove this tenant?")) return;
@@ -102,6 +108,7 @@ const TenantsContainer = () => {
 					tenants.map((tenant) => (
 						<TenantCard
 							key={tenant._id}
+							tenantData={tenant}
 							buildingName={tenant.buildingName}
 							roomName={tenant.roomName}
 							status={tenant.status}
@@ -127,6 +134,7 @@ const TenantsContainer = () => {
 								.toLowerCase()
 								.replace(/\b\w/g, (char) => char.toUpperCase())}
 							onDelete={() => handleDelete(tenant._id)}
+							onTenantUpdated={handleTenantUpdated}
 						/>
 					))}
 			</div>

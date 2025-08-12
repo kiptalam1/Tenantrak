@@ -282,7 +282,11 @@ export async function updateTenant(req, res) {
 			{ _id: tenantId },
 			updateFields,
 			{ new: true, session }
-		);
+		).populate({
+			path: "room",
+			select: "roomName price building",
+			populate: { path: "building", select: "buildingName" },
+		});
 
 		// 4. Update room statuses if changed
 		if (newRoom && String(tenant.room._id) !== String(newRoom._id)) {
@@ -304,7 +308,14 @@ export async function updateTenant(req, res) {
 
 		return res.json({
 			message: "Tenant was updated successfully",
-			tenant: updatedTenant,
+			tenant: {
+				...updatedTenant.toObject(),
+				room: updatedTenant.room._id,
+				roomName: updatedTenant.room.roomName,
+				building: updatedTenant.room.building._id,
+				buildingName: updatedTenant.room.building.buildingName,
+				price: updatedTenant.room.price,
+			},
 		});
 	} catch (error) {
 		await session.abortTransaction();

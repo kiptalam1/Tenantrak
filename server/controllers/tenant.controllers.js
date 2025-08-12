@@ -184,3 +184,132 @@ export async function createTenant(req, res) {
 		res.status(500).json({ error: "Internal server error" });
 	}
 }
+
+// update a tenant's info;
+export async function updateTenant(req, res) {
+	const userId = req.user.userId;
+	const { fullName, email, phone, roomName, status, leaseStart, leaseEnd } =
+		req.body;
+	const tenantId = req.params.id;
+
+	if (!mongoose.Types.ObjectId.isValid(tenantId)) {
+		return res.status(400).json({ error: "Invalid tenant ID" });
+	}
+
+	const session = await mongoose.startSession();
+	session.startTransaction();
+
+	try {
+		// 1. Check landlord
+		const landlord = await Landlord.findOne({ user: userId })
+			.select("_id")
+			.lean();
+		if (!landlord) {
+			await session.abortTransaction();
+			session.endSession();
+			return res
+				.status(403)
+				.json({ error: "Only property owners can perform this operation" });
+		}
+
+		// 2. Get tenant with current room + building
+		const tenant = await Tenant.findOne({ _id: tenantId })
+			.populate({
+				path: "room",
+				select: "building",
+				populate: { path: "building", select: "landlord" },
+			})
+			.lean();
+
+		if (!tenant) {
+			await session.abortTransaction();
+			session.endSession();
+			return res.status(404).json({ error: "Tenant not found" });
+		}
+		if (String(tenant.room.building.landlord) !== String(landlord._id)) {
+			await session.abortTransaction();
+			session.endSession();
+			return res.status(403).json({ error: "This is not your tenant" });
+		}
+
+		let newRoom = null;
+		if (roomName) {
+			// Find new room
+			newRoom = await Room.findOne({ roomName })
+				.populate("building", "landlord")
+				.session(session); // include in transaction
+
+			if (!newRoom) {
+				await session.abortTransaction();
+				session.endSession();
+				return res.status(404).json({ error: "Room not found" });
+			}
+
+			// Ownership check
+			if (String(newRoom.building.landlord) !== String(landlord._id)) {
+				await session.abortTransaction();
+				session.endSession();
+				return res
+					.status(403)
+					.json({ error: "This room does not belong to you" });
+			}
+
+			// Vacant check
+			if (
+				String(newRoom._id) !== String(tenant.room._id) &&
+				newRoom.status !== "vacant"
+			) {
+				const roomStatus =
+					newRoom.status === "maintenance" ? "under maintenance" : "occupied";
+				await session.abortTransaction();
+				session.endSession();
+				return res.status(403).json({ error: `This room is ${roomStatus}` });
+			}
+		}
+
+		// 3. Update tenant
+		const updateFields = {
+			fullName,
+			email,
+			phone,
+			status,
+			leaseStart,
+			leaseEnd,
+		};
+		if (newRoom) updateFields.room = newRoom._id;
+
+		const updatedTenant = await Tenant.findOneAndUpdate(
+			{ _id: tenantId },
+			updateFields,
+			{ new: true, session }
+		);
+
+		// 4. Update room statuses if changed
+		if (newRoom && String(tenant.room._id) !== String(newRoom._id)) {
+			await Room.findByIdAndUpdate(
+				tenant.room._id,
+				{ status: "vacant" },
+				{ session }
+			);
+			await Room.findByIdAndUpdate(
+				newRoom._id,
+				{ status: "occupied" },
+				{ session }
+			);
+		}
+
+		// Commit transaction
+		await session.commitTransaction();
+		session.endSession();
+
+		return res.json({
+			message: "Tenant was updated successfully",
+			tenant: updatedTenant,
+		});
+	} catch (error) {
+		await session.abortTransaction();
+		session.endSession();
+		console.error("Error in updateTenant:", error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+}

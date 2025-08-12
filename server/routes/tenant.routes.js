@@ -2,6 +2,7 @@ import express from "express";
 import {
 	createTenant,
 	getAllTenants,
+	updateTenant,
 } from "../controllers/tenant.controllers.js";
 import verifyToken from "../middlewares/verifyToken.js";
 import { tenantValidators } from "../validators/tenant.validators.js";
@@ -17,4 +18,11 @@ router.post(
 	createTenant
 );
 router.get("/all", verifyToken, getAllTenants);
+router.patch(
+	"/update-tenant/:id",
+	verifyToken,
+	tenantValidators,
+	handleValidationErrors,
+	updateTenant
+);
 export default router;

@@ -185,3 +185,108 @@ export async function deleteRoom(req, res) {
 		return res.status(500).json({ error: "Internal server error" });
 	}
 }
+
+export async function updateRoom(req, res) {
+	const { roomName, roomType, status, bed, bath, price, buildingName } =
+		req.body;
+	const userId = req.user.userId;
+	const roomId = req.params.id;
+	// input Validation;
+	if (!mongoose.Types.ObjectId.isValid(roomId)) {
+		return res.status(400).json({ error: "Invalid tenant ID" });
+	}
+	if (!buildingName?.trim()) {
+		return res.status(400).json({ error: "Building name is required" });
+	}
+	if (!roomName?.trim()) {
+		return res.status(400).json({ error: "Room name is required" });
+	}
+
+	const session = await mongoose.startSession();
+	let committed = false;
+	session.startTransaction();
+	try {
+		// check if logged in user is landlord;
+		const landlord = await Landlord.findOne({ user: userId })
+			.select("_id")
+			.lean();
+		if (!landlord) {
+			session.abortTransaction();
+			session.endSession();
+			return res
+				.status(403)
+				.json({ error: "Only property owners can perform this operation" });
+		}
+
+		// find the rooms that belong to the landlord;
+		const room = await Room.findOne({ roomName, _id: roomId }).populate({
+			path: "building",
+			select: "buildingName landlord tenants",
+		});
+		if (!room) {
+			session.abortTransaction();
+			session.endSession();
+			return res.status(404).json({ error: "Room not found" });
+		}
+		// console.log(landlord._id, room.building.landlord);
+		if (String(landlord._id) !== String(room.building.landlord)) {
+			session.abortTransaction();
+			session.endSession();
+			return res.status(403).json({ error: "This is not your property" });
+		}
+
+		// Update the building name if changed
+		if (room.building.buildingName !== buildingName) {
+			await Building.findByIdAndUpdate(
+				room.building._id,
+				{ buildingName },
+				{ session }
+			);
+		}
+
+		//update the room;
+		const updateFields = {
+			roomName,
+			roomType,
+			status,
+			bed,
+			bath,
+			price,
+		};
+
+		const updatedRoom = await Room.findByIdAndUpdate(roomId, updateFields, {
+			new: true,
+			session,
+		})
+			.populate("tenants", "-_id fullName")
+			.populate("building", "buildingName")
+			.lean();
+
+		// Commit transaction
+		await session.commitTransaction();
+		committed = true;
+		session.endSession();
+
+		// flatten response;
+		const { tenants, building, ...rest } = updatedRoom;
+		const firstTenant = tenants?.[0] || {};
+		return res.status(200).json({
+			message: "Room updated successfully",
+			room: {
+				...rest,
+				building: building._id,
+				buildingName: building.buildingName,
+				tenantName: firstTenant.fullName || null,
+			},
+		});
+	} catch (error) {
+		if (!committed) {
+			await session.abortTransaction();
+		}
+		session.endSession();
+		console.error("Error in updateRoom:", error.message);
+		return res
+			.status(500)
+			.json({ error: error.message || "Internal server error" });
+	}
+}

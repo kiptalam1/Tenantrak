@@ -56,6 +56,7 @@ const TenantsContainer = () => {
 				credentials: "include",
 			});
 			const data = await res.json();
+			// console.log("data :", data);
 
 			if (!res.ok) {
 				toast.error(data?.error || "Failed to remove tenant");

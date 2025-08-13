@@ -193,7 +193,7 @@ export async function updateRoom(req, res) {
 	const roomId = req.params.id;
 	// input Validation;
 	if (!mongoose.Types.ObjectId.isValid(roomId)) {
-		return res.status(400).json({ error: "Invalid tenant ID" });
+		return res.status(400).json({ error: "Invalid room ID" });
 	}
 	if (!buildingName?.trim()) {
 		return res.status(400).json({ error: "Building name is required" });
@@ -219,7 +219,7 @@ export async function updateRoom(req, res) {
 		}
 
 		// find the rooms that belong to the landlord;
-		const room = await Room.findOne({ roomName, _id: roomId }).populate({
+		const room = await Room.findOne({ _id: roomId }).populate({
 			path: "building",
 			select: "buildingName landlord tenants",
 		});

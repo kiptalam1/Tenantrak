@@ -40,6 +40,15 @@ const PropertiesContainer = () => {
 		setRooms((prevRooms) => [newRoom, ...prevRooms]);
 	};
 
+	// update instantly;
+	const handlePropertyUpdated = (updatedRoom) => {
+		setRooms((prevRooms) =>
+			prevRooms.map((room) =>
+				room._id === updatedRoom._id ? updatedRoom : room
+			)
+		);
+	};
+
 	// delete a room;
 	const handleDelete = async (id) => {
 		if (!window.confirm("Are you sure you want to delete this property?"))
@@ -103,6 +112,7 @@ const PropertiesContainer = () => {
 					rooms.map((room) => (
 						<PropertyCard
 							key={room._id}
+							property={room}
 							buildingName={room.buildingName}
 							roomName={room.roomName}
 							status={room.status}
@@ -111,13 +121,14 @@ const PropertiesContainer = () => {
 							bed={room.bed}
 							price={room.price}
 							tenant={
-								room.tenants[0]?.fullName
+								room.tenants?.[0]?.fullName
 									? room.tenants[0].fullName
 											.toLowerCase()
 											.replace(/\b\w/g, (char) => char.toUpperCase())
 									: ""
 							}
 							onDelete={() => handleDelete(room._id)}
+							onPropertyUpdated={handlePropertyUpdated}
 						/>
 					))}
 			</div>

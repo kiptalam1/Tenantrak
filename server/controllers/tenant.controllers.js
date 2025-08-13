@@ -324,3 +324,65 @@ export async function updateTenant(req, res) {
 		return res.status(500).json({ error: "Internal server error" });
 	}
 }
+
+// delete tenant;
+export async function deleteTenant(req, res) {
+	const authUserId = req.user.userId;
+	const tenantId = req.params.id;
+
+	if (!mongoose.Types.ObjectId.isValid(tenantId)) {
+		return res.status(400).json({ error: "Invalid tenant ID" });
+	}
+
+	const session = await mongoose.startSession();
+	session.startTransaction();
+
+	try {
+		// Check landlord
+		const landlord = await Landlord.findOne({ user: authUserId })
+			.select("_id")
+			.lean();
+		if (!landlord) {
+			return res
+				.status(403)
+				.json({ error: "Only landlords can perform this operation" });
+		}
+
+		// Get tenant + room + building in one go
+		const tenant = await Tenant.findById(tenantId)
+			.populate({
+				path: "room",
+				select: "_id building",
+				populate: { path: "building", select: "landlord" },
+			})
+			.session(session)
+			.lean();
+
+		if (!tenant) {
+			return res.status(404).json({ error: "This tenant does not exist" });
+		}
+
+		// Ownership check
+		if (String(landlord._id) !== String(tenant.room.building.landlord)) {
+			return res.status(403).json({ error: "Sorry, This is not your tenant" });
+		}
+
+		// Delete tenant and update room
+		await Tenant.deleteOne({ _id: tenantId }).session(session);
+		await Room.updateOne(
+			{ _id: tenant.room._id },
+			{ status: "vacant", tenants: [] }
+		).session(session);
+
+		await session.commitTransaction();
+		return res.status(200).json({ message: "Tenant deleted successfully",room: tenant.room, tenant });
+	} catch (error) {
+		await session.abortTransaction();
+		console.error("Error in deleteTenant:", error.message);
+		return res
+			.status(500)
+			.json({ error: "Internal server error" });
+	} finally {
+		session.endSession();
+	}
+}

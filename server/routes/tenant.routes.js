@@ -1,6 +1,7 @@
 import express from "express";
 import {
 	createTenant,
+	deleteTenant,
 	getAllTenants,
 	updateTenant,
 } from "../controllers/tenant.controllers.js";
@@ -25,4 +26,5 @@ router.patch(
 	handleValidationErrors,
 	updateTenant
 );
+router.delete("/tenant/:id", verifyToken, deleteTenant);
 export default router;

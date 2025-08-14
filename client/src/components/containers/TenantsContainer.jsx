@@ -102,7 +102,7 @@ const TenantsContainer = () => {
 			<div className="flex items-center flex-wrap gap-4">
 				{tenants.length === 0 && (
 					<p className="w-full text-center text-sm italic text-gray-400 dark:text-gray-300">
-						Add tenant to display
+						Add property first then create a tenant to display
 					</p>
 				)}
 				{tenants &&

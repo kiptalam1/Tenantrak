@@ -29,7 +29,7 @@ const PropertyCard = ({
 		<>
 			<div className="text-sm bg-gray-50 dark:bg-neutral-900 text-gray-900 dark:text-gray-100 flex flex-col justify-between gap-3 w-full sm:w-64 md:w-72 max-w-md border border-gray-300 dark:border-gray-700 rounded-xl p-5 shadow-sm">
 				<div className="flex items-center justify-between">
-					<p className="font-bold italic">
+					<p className="font-semibold text-lg">
 						{buildingName}-{roomName}
 					</p>
 					<div className={`${statusColorMap[status]} py-0.5 px-2 rounded-lg`}>

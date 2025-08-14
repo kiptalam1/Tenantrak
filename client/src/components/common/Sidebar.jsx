@@ -94,7 +94,7 @@ const Sidebar = () => {
 					<Users size={16} absoluteStrokeWidth />
 					<p>Tenants</p>
 				</div>
-				<div
+				{/* <div
 					onClick={() => {
 						navigate("/rent");
 						setOpen(false);
@@ -129,7 +129,7 @@ const Sidebar = () => {
 					className="flex items-center gap-2 py-3 px-2 rounded-sm hover:shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-900">
 					<Bell size={16} absoluteStrokeWidth />
 					<p>Notifications</p>
-				</div>
+				</div> */}
 				<div
 					onClick={() => {
 						logout();

@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
+import path from "path";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -32,8 +33,17 @@ app.use("/api/buildings", buildingRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/tenants", tenantRoutes);
 
+const __dirname = path.resolve();
 
+if (process.env.NODE_ENV === "production") {
+	// serve static files from the frontend build directory
+	app.use(express.static(path.join(__dirname, "/client/dist")));
 
+	// handle any requests that don't match the above routes
+	app.get("*", (req, res) => {
+		res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+	});
+}
 
 
 const PORT = process.env.PORT || 5000;
